@@ -3,6 +3,7 @@
 // ==============================
 const STORAGE_KEY = 'taskReminderAlarm_tasks';
 const ALARM_SOUND = new Audio('assets/alarm.mp3');
+let alarmTimeoutId = null;
 
 // ==============================
 // 状態
@@ -218,3 +219,22 @@ function requestNotificationPermission() {
 }
 
 setInterval(render, 1000);
+
+
+// ==============================
+// アラーム停止（UI + 自動）
+// ==============================
+function stopAlarm() {
+  if (alarmTimeoutId) {
+    clearTimeout(alarmTimeoutId);
+    alarmTimeoutId = null;
+  }
+  ALARM_SOUND.pause();
+  ALARM_SOUND.currentTime = 0;
+}
+
+// 停止ボタン
+const stopAlarmBtn = document.getElementById('stopAlarmBtn');
+if (stopAlarmBtn) {
+  stopAlarmBtn.addEventListener('click', stopAlarm);
+}
