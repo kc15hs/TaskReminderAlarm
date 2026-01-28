@@ -148,16 +148,14 @@ function render() {
   tasks.forEach(task => {
     const targetTime = new Date(task.targetTime);
 
-    // ===== アラーム発火判定（追加）=====
     if (now >= targetTime && !firedTaskIds.has(task.id)) {
       firedTaskIds.add(task.id);
       ALARM_SOUND.loop = true;
       ALARM_SOUND.play();
 
       if (alarmTimeoutId) clearTimeout(alarmTimeoutId);
-      alarmTimeoutId = setTimeout(stopAlarm, 60000); // 1分後に自動停止
+      alarmTimeoutId = setTimeout(stopAlarm, 60000);
     }
-    // ===================================
 
     const li = document.createElement('li');
 
@@ -172,7 +170,7 @@ function render() {
 
     const timeSpan = document.createElement('span');
     timeSpan.style.display = 'inline-block';
-    timeSpan.style.width = '4.5em';
+    timeSpan.style.width = '3.5em'; // A案：少しだけ縮小
     timeSpan.style.textAlign = 'right';
     if (task.type === 'timer' && task.minutes != null) {
       timeSpan.textContent = `${task.minutes}分`;
@@ -182,7 +180,7 @@ function render() {
 
     const remainSpan = document.createElement('span');
     remainSpan.style.display = 'inline-block';
-    remainSpan.style.width = '6em';
+    remainSpan.style.width = '4.5em'; // A案：少しだけ縮小
     remainSpan.style.textAlign = 'right';
     remainSpan.textContent = calcRemain(new Date(task.targetTime), now);
 
@@ -239,9 +237,8 @@ function requestNotificationPermission() {
 
 setInterval(render, 1000);
 
-
 // ==============================
-// アラーム停止（UI + 自動）
+// アラーム停止
 // ==============================
 function stopAlarm() {
   if (alarmTimeoutId) {
@@ -253,7 +250,6 @@ function stopAlarm() {
   ALARM_SOUND.loop = false;
 }
 
-// 停止ボタン
 const stopAlarmBtn = document.getElementById('stopAlarmBtn');
 if (stopAlarmBtn) {
   stopAlarmBtn.addEventListener('click', stopAlarm);
