@@ -74,7 +74,6 @@ function setupSpeechRecognition() {
 function handleVoiceText(text) {
   let work = text.trim();
 
-  // ---- 音声トリガ判定（文末） ----
   const triggerRe = /(でセット|で設定|で登録)$/;
   const shouldAdd = triggerRe.test(work);
   if (shouldAdd) {
@@ -98,7 +97,6 @@ function handleVoiceText(text) {
   work = work.replace(/に|を|で|へ|タイマー|アラーム|教えて/g, '').trim();
   if (work) taskInput.value = work;
 
-  // ---- 既存ボタンと同一ロジックで追加 ----
   if (shouldAdd) {
     addBtn.click();
   }
@@ -192,7 +190,7 @@ function render() {
 
     const remainSpan = document.createElement('span');
     remainSpan.style.display = 'inline-block';
-    remainSpan.style.width = '4.5em';
+    remainSpan.style.width = '8em'; // ← 「残り 9999:99」が改行せず入る幅
     remainSpan.style.textAlign = 'right';
     remainSpan.textContent = calcRemain(new Date(task.targetTime), now);
 
