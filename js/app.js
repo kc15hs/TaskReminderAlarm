@@ -72,7 +72,14 @@ function setupSpeechRecognition() {
 // 音声解析
 // ==============================
 function handleVoiceText(text) {
-  let work = text;
+  let work = text.trim();
+
+  // ---- 音声トリガ判定（文末） ----
+  const triggerRe = /(でセット|で設定|で登録)$/;
+  const shouldAdd = triggerRe.test(work);
+  if (shouldAdd) {
+    work = work.replace(triggerRe, '').trim();
+  }
 
   const minMatch = work.match(/(\d+)\s*分後/);
   if (minMatch) {
@@ -90,6 +97,11 @@ function handleVoiceText(text) {
 
   work = work.replace(/に|を|で|へ|タイマー|アラーム|教えて/g, '').trim();
   if (work) taskInput.value = work;
+
+  // ---- 既存ボタンと同一ロジックで追加 ----
+  if (shouldAdd) {
+    addBtn.click();
+  }
 }
 
 // ==============================
@@ -170,7 +182,7 @@ function render() {
 
     const timeSpan = document.createElement('span');
     timeSpan.style.display = 'inline-block';
-    timeSpan.style.width = '3.5em'; // A案：少しだけ縮小
+    timeSpan.style.width = '3.5em';
     timeSpan.style.textAlign = 'right';
     if (task.type === 'timer' && task.minutes != null) {
       timeSpan.textContent = `${task.minutes}分`;
@@ -180,7 +192,7 @@ function render() {
 
     const remainSpan = document.createElement('span');
     remainSpan.style.display = 'inline-block';
-    remainSpan.style.width = '4.5em'; // A案：少しだけ縮小
+    remainSpan.style.width = '4.5em';
     remainSpan.style.textAlign = 'right';
     remainSpan.textContent = calcRemain(new Date(task.targetTime), now);
 
