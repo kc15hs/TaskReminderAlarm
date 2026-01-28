@@ -91,7 +91,7 @@ input[type="number"] {
   cursor: pointer;
 }
 
-/* 一覧エリア */
+/* 一覧 */
 .task-list {
   list-style: none;
   padding: 0;
@@ -110,8 +110,15 @@ input[type="number"] {
   border-bottom: none;
 }
 
-.task-list input[type="checkbox"] {
-  margin-right: 4px;
+/* 削除ボタン（左端） */
+.delete-row-btn {
+  padding: 6px 10px;
+  font-size: 12px;
+  background-color: #eeeeee;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
 }
 
 .time {
@@ -148,19 +155,7 @@ input[type="number"] {
   color: #c2185b;
 }
 
-/* 削除ボタン */
-.delete-btn {
-  width: 100%;
-  margin-top: 12px;
-  padding: 10px;
-  font-size: 14px;
-  background-color: #eeeeee;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-/* PC表示時の最大幅 */
+/* PC幅制限 */
 @media (min-width: 600px) {
   body {
     max-width: 520px;

@@ -2,13 +2,15 @@
 // 定数
 // ==============================
 const STORAGE_KEY = 'taskReminderAlarm_tasks';
-const ALARM_SOUND = new Audio('assets/test.mp3');
+const ALARM_SOUND = new Audio('assets/alarm.mp3');
 
 // ==============================
 // 状態
 // ==============================
 let tasks = [];
-let firedTaskIds = new Set(); // 発火済みID
+let firedTaskIds = new Set();
+let recognition = null;
+let recognizing = false;
 
 // ==============================
 // DOM
@@ -16,8 +18,8 @@ let firedTaskIds = new Set(); // 発火済みID
 const minutesInput = document.querySelector('input[type="number"]');
 const timeInput = document.querySelector('input[type="time"]');
 const taskInput = document.querySelector('.task-row input[type="text"]');
+const micBtn = document.querySelector('.mic-btn');
 const addBtn = document.querySelector('.add-btn');
-const deleteBtn = document.querySelector('.delete-btn');
 const taskList = document.querySelector('.task-list');
 
 // ==============================
@@ -25,7 +27,88 @@ const taskList = document.querySelector('.task-list');
 // ==============================
 requestNotificationPermission();
 loadFromStorage();
+setupSpeechRecognition();
 render();
+
+// ==============================
+// 音声認識セットアップ
+// ==============================
+function setupSpeechRecognition() {
+  const SpeechRecognition =
+    window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  if (!SpeechRecognition) {
+    console.warn('SpeechRecognition not supported');
+    micBtn.disabled = true;
+    return;
+  }
+
+  recognition = new SpeechRecognition();
+  recognition.lang = 'ja-JP';
+  recognition.interimResults = false;
+  recognition.continuous = false;
+
+  recognition.onstart = () => {
+    recognizing = true;
+    micBtn.style.backgroundColor = '#ffcccc';
+  };
+
+  recognition.onend = () => {
+    recognizing = false;
+    micBtn.style.backgroundColor = '';
+  };
+
+  recognition.onerror = (e) => {
+    console.error('Speech error', e);
+  };
+
+  recognition.onresult = (e) => {
+    const text = e.results[0][0].transcript;
+    handleVoiceText(text);
+  };
+
+  micBtn.addEventListener('click', () => {
+    if (recognizing) {
+      recognition.stop();
+    } else {
+      recognition.start();
+    }
+  });
+}
+
+// ==============================
+// 音声テキスト解析
+// ==============================
+function handleVoiceText(text) {
+  let work = text;
+
+  // --- タイマー（分後） ---
+  const minMatch = work.match(/(\d+)\s*分後/);
+  if (minMatch) {
+    minutesInput.value = minMatch[1];
+    work = work.replace(minMatch[0], '');
+  }
+
+  // --- アラーム（時刻） ---
+  const timeMatch = work.match(/(\d+)\s*時\s*(\d+)?\s*分?/);
+  if (timeMatch) {
+    const h = timeMatch[1].padStart(2, '0');
+    const m = (timeMatch[2] || '0').padStart(2, '0');
+    timeInput.value = `${h}:${m}`;
+    work = work.replace(timeMatch[0], '');
+  }
+
+  // --- 不要語を軽く除去 ---
+  work = work
+    .replace(/に|を|で|へ|タイマー|アラーム|教えて/g, '')
+    .replace(/、|,/g, ' ')
+    .trim();
+
+  // --- 用件 ---
+  if (work) {
+    taskInput.value = work;
+  }
+}
 
 // ==============================
 // 追加
@@ -41,16 +124,17 @@ addBtn.addEventListener('click', () => {
   }
 
   const now = new Date();
-  let targetTime;
-  let type;
 
+  // 分数 → タイマー
   if (minutes) {
-    type = 'timer';
-    targetTime = new Date(now.getTime() + Number(minutes) * 60000);
-  } else {
-    type = 'alarm';
+    const target = new Date(now.getTime() + Number(minutes) * 60000);
+    tasks.push(createTask('timer', target, taskText));
+  }
+
+  // 時刻 → アラーム
+  if (timeValue) {
     const [h, m] = timeValue.split(':').map(Number);
-    targetTime = new Date(
+    let target = new Date(
       now.getFullYear(),
       now.getMonth(),
       now.getDate(),
@@ -58,17 +142,11 @@ addBtn.addEventListener('click', () => {
       m,
       0
     );
-    if (targetTime <= now) {
-      targetTime.setDate(targetTime.getDate() + 1);
+    if (target <= now) {
+      target.setDate(target.getDate() + 1);
     }
+    tasks.push(createTask('alarm', target, taskText));
   }
-
-  tasks.push({
-    id: crypto.randomUUID(),
-    type,
-    targetTime: targetTime.toISOString(),
-    task: taskText || '(空)'
-  });
 
   saveToStorage();
 
@@ -80,37 +158,18 @@ addBtn.addEventListener('click', () => {
 });
 
 // ==============================
-// 削除
-// ==============================
-deleteBtn.addEventListener('click', () => {
-  const checkedIds = Array.from(
-    document.querySelectorAll('.task-list input[type="checkbox"]:checked')
-  ).map(cb => cb.dataset.id);
-
-  tasks = tasks.filter(t => !checkedIds.includes(t.id));
-  checkedIds.forEach(id => firedTaskIds.delete(id));
-
-  saveToStorage();
-  render();
-});
-
-// ==============================
 // 描画 + 発火判定
 // ==============================
 function render() {
   const now = new Date();
 
-  tasks.sort(
-    (a, b) => new Date(a.targetTime) - new Date(b.targetTime)
-  );
-
+  tasks.sort((a, b) => new Date(a.targetTime) - new Date(b.targetTime));
   taskList.innerHTML = '';
 
   tasks.forEach(task => {
     const target = new Date(task.targetTime);
     const diff = target - now;
 
-    // ===== 発火判定（1回だけ） =====
     if (diff <= 0 && !firedTaskIds.has(task.id)) {
       firedTaskIds.add(task.id);
       fireAlarm(task);
@@ -118,9 +177,15 @@ function render() {
 
     const li = document.createElement('li');
 
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    checkbox.dataset.id = task.id;
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'delete-row-btn';
+    deleteBtn.textContent = '削除';
+    deleteBtn.addEventListener('click', () => {
+      tasks = tasks.filter(t => t.id !== task.id);
+      firedTaskIds.delete(task.id);
+      saveToStorage();
+      render();
+    });
 
     const timeSpan = document.createElement('span');
     timeSpan.className = 'time';
@@ -132,58 +197,47 @@ function render() {
 
     const taskSpan = document.createElement('span');
     taskSpan.className = 'task';
-    taskSpan.textContent = task.task;
+    taskSpan.textContent = task.task || '(空)';
 
     const typeSpan = document.createElement('span');
     typeSpan.className = `type ${task.type}`;
-    typeSpan.textContent =
-      task.type === 'timer' ? 'タイマー' : 'アラーム';
+    typeSpan.textContent = task.type === 'timer' ? 'タイマー' : 'アラーム';
 
-    li.append(
-      checkbox,
-      timeSpan,
-      remainSpan,
-      taskSpan,
-      typeSpan
-    );
-
+    li.append(deleteBtn, timeSpan, remainSpan, taskSpan, typeSpan);
     taskList.appendChild(li);
   });
 }
 
 // ==============================
-// アラーム発火
+// ユーティリティ
 // ==============================
+function createTask(type, target, task) {
+  return {
+    id: crypto.randomUUID(),
+    type,
+    targetTime: target.toISOString(),
+    task: task || '(空)'
+  };
+}
+
 function fireAlarm(task) {
-  // 通知
   if (Notification.permission === 'granted') {
     new Notification('時間です', {
       body: task.task === '(空)' ? '用件なし' : task.task
     });
   }
-
-  // 音
   ALARM_SOUND.currentTime = 0;
   ALARM_SOUND.play().catch(() => {});
 }
 
-// ==============================
-// 1秒更新
-// ==============================
 setInterval(render, 1000);
 
-// ==============================
-// Notification
-// ==============================
 function requestNotificationPermission() {
   if ('Notification' in window && Notification.permission === 'default') {
     Notification.requestPermission();
   }
 }
 
-// ==============================
-// localStorage
-// ==============================
 function saveToStorage() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
 }
@@ -198,9 +252,6 @@ function loadFromStorage() {
   }
 }
 
-// ==============================
-// ヘルパー
-// ==============================
 function formatTime(date) {
   return date.toLocaleTimeString('ja-JP', {
     hour: '2-digit',
