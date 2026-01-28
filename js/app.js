@@ -169,6 +169,7 @@ function render() {
     // ===== 1分前カウントダウン表示（追加ロジック） =====
     if (diffSec <= 60 && diffSec > 0 && !firedTaskIds.has(task.id)) {
       alarmTaskText.textContent = String(diffSec);
+      alarmTaskText.classList.add('countdown');
       alarmOverlay.classList.remove('hidden');
     }
 
@@ -271,6 +272,7 @@ setInterval(render, 1000);
 // アラーム停止
 // ==============================
 function stopAlarm() {
+  alarmTaskText.classList.remove('countdown');
   if (alarmTimeoutId) {
     clearTimeout(alarmTimeoutId);
     alarmTimeoutId = null;
@@ -282,6 +284,7 @@ function stopAlarm() {
 }
 
 function showAlarmOverlay(taskText) {
+  alarmTaskText.classList.remove('countdown');
   alarmTaskText.textContent = taskText || '(空)';
   alarmOverlay.classList.remove('hidden');
 }

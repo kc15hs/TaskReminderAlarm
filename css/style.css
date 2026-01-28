@@ -136,11 +136,9 @@ input[type="number"] {
 }
 
 .alarm-task {
-  font-size: 10rem;        /* ← ここを大きくする */
-  font-weight: bold;      /* 視認性アップ */
-  text-align: center;
+  font-size: 20px;
   margin-bottom: 24px;
-  line-height: 1;
+  word-break: break-word;
 }
 
 .alarm-stop-btn {
@@ -166,4 +164,13 @@ input[type="number"] {
 .task-list button.expired-delete {
   background-color: #000;
   color: #fff;
+}
+
+
+/* カウントダウン中のみ巨大表示 */
+.alarm-task.countdown {
+  font-size: 10rem;
+  font-weight: bold;
+  text-align: center;
+  line-height: 1;
 }
