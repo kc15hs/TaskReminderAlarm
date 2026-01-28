@@ -159,3 +159,9 @@ input[type="number"] {
     margin: 0 auto;
   }
 }
+
+/* 到達済み（時間を迎えた）用件の削除ボタン */
+.task-list button.expired-delete {
+  background-color: #000;
+  color: #fff;
+}

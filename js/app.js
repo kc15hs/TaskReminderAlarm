@@ -162,7 +162,9 @@ function render() {
   tasks.forEach(task => {
     const targetTime = new Date(task.targetTime);
 
-    if (now >= targetTime && !firedTaskIds.has(task.id)) {
+
+    const isExpired = now >= targetTime;
+    if (isExpired && !firedTaskIds.has(task.id)) {
       firedTaskIds.add(task.id);
       ALARM_SOUND.loop = true;
       ALARM_SOUND.play();
@@ -177,6 +179,9 @@ function render() {
 
     const deleteBtn = document.createElement('button');
     deleteBtn.textContent = '削除';
+    if (isExpired) {
+      deleteBtn.classList.add('expired-delete');
+    }
     deleteBtn.addEventListener('click', () => {
       tasks = tasks.filter(t => t.id !== task.id);
       firedTaskIds.delete(task.id);
