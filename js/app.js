@@ -15,9 +15,10 @@ let recognizing = false;
 // ==============================
 // DOM
 // ==============================
-const minutesInput = document.querySelector('input[type="number"]');
-const timeInput = document.querySelector('input[type="time"]');
-const taskInput = document.querySelector('.task-row input[type="text"]');
+const minutesInput = document.getElementById('minutesInput');
+const timeInput = document.getElementById('timeInput');
+const taskInput = document.getElementById('taskInput');
+const preAlarmSelect = document.getElementById('preAlarmSelect');
 const micBtn = document.querySelector('.mic-btn');
 const addBtn = document.querySelector('.add-btn');
 const taskList = document.querySelector('.task-list');
@@ -145,13 +146,29 @@ addBtn.addEventListener('click', () => {
     if (target <= now) {
       target.setDate(target.getDate() + 1);
     }
+
+    // 本アラーム
     tasks.push(createTask('alarm', target, taskText));
+
+    // 前アラーム
+    const preMin = Number(preAlarmSelect.value || 0);
+    if (preMin > 0) {
+      const preTarget = new Date(target.getTime() - preMin * 60000);
+      if (preTarget > now) {
+        const preText = taskText
+          ? `${taskText} の${preMin}分前アラーム`
+          : `${preMin}分前アラーム`;
+        tasks.push(createTask('alarm', preTarget, preText));
+      }
+    }
   }
 
   saveToStorage();
 
-  minutesInput.value = '';
+  // 入力エリア初期化
+  minutesInput.value = 0;
   timeInput.value = '';
+  preAlarmSelect.value = 0;
   taskInput.value = '';
 
   render();

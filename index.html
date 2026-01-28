@@ -18,21 +18,30 @@
   <h2>新しい要件を追加</h2>
 
   <div class="field">
-    <label>今から</label>
-    <input type="number" placeholder="30" />
-    <span>分後（タイマー）</span>
+    <label>タイマー</label>
+    <input type="number" id="minutesInput" placeholder="0" value="0" />
+    <span>分後</span>
   </div>
 
   <div class="field">
-    <label>時刻指定</label>
-    <input type="time" />
-    <span>（アラーム）</span>
+    <label>アラーム</label>
+    <input type="time" id="timeInput" />
+    <select id="preAlarmSelect" class="pre-alarm-select">
+      <option value="0">なし</option>
+      <option value="30">30</option>
+      <option value="60">60</option>
+      <option value="90">90</option>
+      <option value="120">120</option>
+      <option value="150">150</option>
+      <option value="180">180</option>
+    </select>
+    <span>分前にアラーム</span>
   </div>
 
   <div class="field">
     <label>用件</label>
     <div class="task-row">
-      <input type="text" placeholder="（空欄でもOK）" />
+      <input type="text" id="taskInput" placeholder="（空欄でもOK）" />
       <button class="mic-btn" title="音声入力">🎤</button>
     </div>
   </div>
