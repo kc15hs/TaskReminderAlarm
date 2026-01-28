@@ -2,11 +2,13 @@
 // 定数
 // ==============================
 const STORAGE_KEY = 'taskReminderAlarm_tasks';
+const ALARM_SOUND = new Audio('assets/test.mp3');
 
 // ==============================
 // 状態
 // ==============================
 let tasks = [];
+let firedTaskIds = new Set(); // 発火済みID
 
 // ==============================
 // DOM
@@ -19,8 +21,9 @@ const deleteBtn = document.querySelector('.delete-btn');
 const taskList = document.querySelector('.task-list');
 
 // ==============================
-// 初期化（localStorage 読込）
+// 初期化
 // ==============================
+requestNotificationPermission();
 loadFromStorage();
 render();
 
@@ -85,12 +88,14 @@ deleteBtn.addEventListener('click', () => {
   ).map(cb => cb.dataset.id);
 
   tasks = tasks.filter(t => !checkedIds.includes(t.id));
+  checkedIds.forEach(id => firedTaskIds.delete(id));
+
   saveToStorage();
   render();
 });
 
 // ==============================
-// 描画
+// 描画 + 発火判定
 // ==============================
 function render() {
   const now = new Date();
@@ -103,6 +108,13 @@ function render() {
 
   tasks.forEach(task => {
     const target = new Date(task.targetTime);
+    const diff = target - now;
+
+    // ===== 発火判定（1回だけ） =====
+    if (diff <= 0 && !firedTaskIds.has(task.id)) {
+      firedTaskIds.add(task.id);
+      fireAlarm(task);
+    }
 
     const li = document.createElement('li');
 
@@ -124,7 +136,8 @@ function render() {
 
     const typeSpan = document.createElement('span');
     typeSpan.className = `type ${task.type}`;
-    typeSpan.textContent = task.type === 'timer' ? 'タイマー' : 'アラーム';
+    typeSpan.textContent =
+      task.type === 'timer' ? 'タイマー' : 'アラーム';
 
     li.append(
       checkbox,
@@ -139,9 +152,34 @@ function render() {
 }
 
 // ==============================
+// アラーム発火
+// ==============================
+function fireAlarm(task) {
+  // 通知
+  if (Notification.permission === 'granted') {
+    new Notification('時間です', {
+      body: task.task === '(空)' ? '用件なし' : task.task
+    });
+  }
+
+  // 音
+  ALARM_SOUND.currentTime = 0;
+  ALARM_SOUND.play().catch(() => {});
+}
+
+// ==============================
 // 1秒更新
 // ==============================
 setInterval(render, 1000);
+
+// ==============================
+// Notification
+// ==============================
+function requestNotificationPermission() {
+  if ('Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission();
+  }
+}
 
 // ==============================
 // localStorage
