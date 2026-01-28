@@ -190,7 +190,7 @@ function render() {
 
     const remainSpan = document.createElement('span');
     remainSpan.style.display = 'inline-block';
-    remainSpan.style.width = '8em'; // ← 「残り 9999:99」が改行せず入る幅
+    remainSpan.style.width = '6em'; // ← 「残り 9999:99」が改行せず入る幅
     remainSpan.style.textAlign = 'right';
     remainSpan.textContent = calcRemain(new Date(task.targetTime), now);
 
