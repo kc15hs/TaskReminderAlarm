@@ -121,7 +121,7 @@ addBtn.addEventListener('click', () => {
     if (preMin > 0) {
       const preTarget = new Date(target.getTime() - preMin * 60000);
       if (preTarget > now) {
-        tasks.push(createTask('alarm', preTarget, `${taskText} ${preMin}分前アラーム`));
+        tasks.push(createTask('alarm', preTarget, `${taskText} ${preMin}分前`));
       }
     }
   }
@@ -189,12 +189,13 @@ function createTask(type, target, task, minutes = null) {
 
 function calcRemain(target, now) {
   const diff = target - now;
-  if (diff <= 0) return '残り 00:00:00';
+  if (diff <= 0) return '残り 0:00';
+
   const sec = Math.floor(diff / 1000);
-  const h = Math.floor(sec / 3600);
-  const m = Math.floor((sec % 3600) / 60);
+  const totalMin = Math.floor(sec / 60);
   const s = sec % 60;
-  return `残り ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+
+  return `残り ${totalMin}:${String(s).padStart(2,'0')}`;
 }
 
 function formatTime(date) {
