@@ -101,7 +101,7 @@ input[type="number"] {
 .task-list li {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
   padding: 10px 0;
   border-bottom: 1px solid #eeeeee;
 }
@@ -121,13 +121,15 @@ input[type="number"] {
   white-space: nowrap;
 }
 
+/* 時刻表示 */
 .time {
-  min-width: 60px;
+  min-width: 50px;
   font-weight: bold;
 }
 
+/* 残り時間表示 */
 .remain {
-  min-width: 110px;
+  min-width: 90px;
   font-size: 13px;
   color: #555;
 }
