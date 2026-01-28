@@ -159,9 +159,18 @@ function render() {
   tasks.sort((a, b) => new Date(a.targetTime) - new Date(b.targetTime));
   taskList.innerHTML = '';
 
+  let countdownTaskId = null;
   tasks.forEach(task => {
     const targetTime = new Date(task.targetTime);
 
+
+    const diffSec = Math.floor((targetTime - now) / 1000);
+
+    // ===== 1分前カウントダウン表示（追加ロジック） =====
+    if (diffSec <= 60 && diffSec > 0 && !firedTaskIds.has(task.id)) {
+      alarmTaskText.textContent = String(diffSec);
+      alarmOverlay.classList.remove('hidden');
+    }
 
     const isExpired = now >= targetTime;
     if (isExpired && !firedTaskIds.has(task.id)) {

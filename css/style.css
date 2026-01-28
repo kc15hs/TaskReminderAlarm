@@ -136,9 +136,11 @@ input[type="number"] {
 }
 
 .alarm-task {
-  font-size: 20px;
+  font-size: 10rem;        /* ← ここを大きくする */
+  font-weight: bold;      /* 視認性アップ */
+  text-align: center;
   margin-bottom: 24px;
-  word-break: break-word;
+  line-height: 1;
 }
 
 .alarm-stop-btn {
