@@ -146,6 +146,19 @@ function render() {
   taskList.innerHTML = '';
 
   tasks.forEach(task => {
+    const targetTime = new Date(task.targetTime);
+
+    // ===== アラーム発火判定（追加）=====
+    if (now >= targetTime && !firedTaskIds.has(task.id)) {
+      firedTaskIds.add(task.id);
+      ALARM_SOUND.loop = true;
+      ALARM_SOUND.play();
+
+      if (alarmTimeoutId) clearTimeout(alarmTimeoutId);
+      alarmTimeoutId = setTimeout(stopAlarm, 60000); // 1分後に自動停止
+    }
+    // ===================================
+
     const li = document.createElement('li');
 
     const deleteBtn = document.createElement('button');
@@ -231,6 +244,7 @@ function stopAlarm() {
   }
   ALARM_SOUND.pause();
   ALARM_SOUND.currentTime = 0;
+  ALARM_SOUND.loop = false;
 }
 
 // 停止ボタン
