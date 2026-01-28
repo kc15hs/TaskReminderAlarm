@@ -171,6 +171,9 @@ function render() {
     });
 
     const timeSpan = document.createElement('span');
+    timeSpan.style.display = 'inline-block';
+    timeSpan.style.width = '4.5em';
+    timeSpan.style.textAlign = 'right';
     if (task.type === 'timer' && task.minutes != null) {
       timeSpan.textContent = `${task.minutes}分`;
     } else {
@@ -178,6 +181,9 @@ function render() {
     }
 
     const remainSpan = document.createElement('span');
+    remainSpan.style.display = 'inline-block';
+    remainSpan.style.width = '6em';
+    remainSpan.style.textAlign = 'right';
     remainSpan.textContent = calcRemain(new Date(task.targetTime), now);
 
     const taskSpan = document.createElement('span');
