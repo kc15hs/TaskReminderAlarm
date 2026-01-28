@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Task Reminder Alarm</title>
+
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<header>
+  <h1>Task Reminder Alarm</h1>
+</header>
+
+<!-- 入力エリア -->
+<section class="input-area">
+  <h2>新しい要件を追加</h2>
+
+  <div class="field">
+    <label>今から</label>
+    <input type="number" placeholder="30" />
+    <span>分後（タイマー）</span>
+  </div>
+
+  <div class="field">
+    <label>時刻指定</label>
+    <input type="time" />
+    <span>（アラーム）</span>
+  </div>
+
+  <div class="field">
+    <label>用件</label>
+    <div class="task-row">
+      <input type="text" placeholder="（空欄でもOK）" />
+      <button class="mic-btn" title="音声入力">🎤</button>
+    </div>
+  </div>
+
+  <button class="add-btn">＋ 一覧に追加</button>
+</section>
+
+<!-- 一覧エリア -->
+<section class="list-area">
+  <h2>セット済み要件</h2>
+
+  <ul class="task-list">
+    <li>
+      <input type="checkbox" />
+      <span class="time">14:30</span>
+      <span class="remain">残り 01:12:30</span>
+      <span class="task">会議準備</span>
+      <span class="type alarm">アラーム</span>
+    </li>
+
+    <li>
+      <input type="checkbox" />
+      <span class="time">15:10</span>
+      <span class="remain">残り 00:25:00</span>
+      <span class="task">(空)</span>
+      <span class="type timer">タイマー</span>
+    </li>
+
+    <li>
+      <input type="checkbox" />
+      <span class="time">18:00</span>
+      <span class="remain">残り 02:00:00</span>
+      <span class="task">洗濯終了</span>
+      <span class="type timer">タイマー</span>
+    </li>
+  </ul>
+
+  <button class="delete-btn">チェックした項目を削除</button>
+</section>
+
+<script src="js/app.js"></script>
+</body>
+</html>
