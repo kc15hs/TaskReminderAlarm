@@ -156,7 +156,7 @@ addBtn.addEventListener('click', () => {
       const preTarget = new Date(target.getTime() - preMin * 60000);
       if (preTarget > now) {
         const preText = taskText
-          ? `${taskText} の${preMin}分前アラーム`
+          ? `${taskText} ${preMin}分前アラーム`
           : `${preMin}分前アラーム`;
         tasks.push(createTask('alarm', preTarget, preText));
       }
