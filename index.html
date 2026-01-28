@@ -12,7 +12,6 @@
   <h1>Task Reminder Alarm</h1>
 </header>
 
-
 <section class="input-area">
   <h2>新しい用件を追加</h2>
 
@@ -60,6 +59,15 @@
   </div>
   <ul class="task-list"></ul>
 </section>
+
+<!-- Fullscreen Alarm Overlay -->
+<div id="alarmOverlay" class="alarm-overlay hidden">
+  <div class="alarm-card">
+    <div class="alarm-title">🔔 アラームです</div>
+    <div id="alarmTaskText" class="alarm-task"></div>
+    <button id="overlayStopBtn" class="alarm-stop-btn">停止</button>
+  </div>
+</div>
 
 <script src="js/app.js"></script>
 </body>

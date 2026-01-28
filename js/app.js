@@ -24,6 +24,10 @@ const micBtn = document.querySelector('.mic-btn');
 const addBtn = document.querySelector('.add-btn');
 const taskList = document.querySelector('.task-list');
 
+const alarmOverlay = document.getElementById('alarmOverlay');
+const alarmTaskText = document.getElementById('alarmTaskText');
+const overlayStopBtn = document.getElementById('overlayStopBtn');
+
 // ==============================
 // 初期化
 // ==============================
@@ -163,6 +167,8 @@ function render() {
       ALARM_SOUND.loop = true;
       ALARM_SOUND.play();
 
+      showAlarmOverlay(task.task);
+
       if (alarmTimeoutId) clearTimeout(alarmTimeoutId);
       alarmTimeoutId = setTimeout(stopAlarm, 60000);
     }
@@ -190,7 +196,7 @@ function render() {
 
     const remainSpan = document.createElement('span');
     remainSpan.style.display = 'inline-block';
-    remainSpan.style.width = '6em'; // ← 「残り 9999:99」が改行せず入る幅
+    remainSpan.style.width = '6em';
     remainSpan.style.textAlign = 'right';
     remainSpan.textContent = calcRemain(new Date(task.targetTime), now);
 
@@ -258,9 +264,21 @@ function stopAlarm() {
   ALARM_SOUND.pause();
   ALARM_SOUND.currentTime = 0;
   ALARM_SOUND.loop = false;
+  hideAlarmOverlay();
+}
+
+function showAlarmOverlay(taskText) {
+  alarmTaskText.textContent = taskText || '(空)';
+  alarmOverlay.classList.remove('hidden');
+}
+
+function hideAlarmOverlay() {
+  alarmOverlay.classList.add('hidden');
 }
 
 const stopAlarmBtn = document.getElementById('stopAlarmBtn');
 if (stopAlarmBtn) {
   stopAlarmBtn.addEventListener('click', stopAlarm);
 }
+
+overlayStopBtn.addEventListener('click', stopAlarm);
